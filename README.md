@@ -1,4 +1,4 @@
-logstash-snmpout
+logstash-output-snmptrap
 ================
 
 SNMP Trap v2c Output for Logstash
