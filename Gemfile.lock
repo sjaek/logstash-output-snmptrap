@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    logstash-output-snmptrap (0.9.1)
+    logstash-output-snmptrap (0.9.2)
       logstash-codec-plain
       logstash-core-plugin-api (~> 2.0)
 
