@@ -1,6 +1,6 @@
 Gem::Specification.new do |s|
   s.name          = 'logstash-output-snmptrap'
-  s.version       = '0.9.2'
+  s.version       = '0.9.3'
   s.licenses      = ['Apache-2.0']
   s.summary       = 'SNMP Output for Logstash'
   s.description   = 'This gem is a logstash plugin required to be installed on top of the Logstash core pipeline using $LS_HOME/bin/plugin install gemname. This gem is not a stand-alone program'

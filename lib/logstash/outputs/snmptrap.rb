@@ -23,6 +23,9 @@ class LogStash::Outputs::Snmptrap < LogStash::Outputs::Base
   # directory of YAML MIB maps  (same format ruby-snmp uses)
   config :yamlmibdir, :validate => :string
 
+  # varbind configuration
+  config :varbinds, :default => [{'oid' => "@oid", 'code' => "SNMP::OctetString.new(event.to_s)"}]
+
   def initialize(*args)
     super(*args)
   end
@@ -52,10 +55,13 @@ class LogStash::Outputs::Snmptrap < LogStash::Outputs::Base
       #prep and do the full send
       SNMP::Manager.open(trapsender_opts) do |snmp|
         #set it up and send the whole event using the user specified codec
-        varbind = SNMP::VarBind.new(@oid, SNMP::OctetString.new(event.to_s))
+        varbinds = []
+        @varbinds.each do |varbind|
+          varbinds << SNMP::VarBind.new(eval(varbind['oid']), eval(varbind['code']))
+        end
 
-        #we dont actually care about the sys_up_time...do we.  Also I am re-using the oid that was input.
-        snmp.trap_v2(0, @oid, varbind)
+        #we dont actually care about the sys_up_time...do we.
+        snmp.trap_v2(0, @oid, varbinds)
         end
     end
   end
