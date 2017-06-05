@@ -24,7 +24,7 @@ class LogStash::Outputs::Snmptrap < LogStash::Outputs::Base
   config :yamlmibdir, :validate => :string
 
   # varbind configuration
-  config :varbinds, :default => [{'oid' => "@oid", 'code' => "SNMP::OctetString.new(event.to_s)"}]
+  config :varbinds, :default => [{'oid' => "@oid", 'code' => "SNMP::OctetString.new(event.to_s.force_encoding('ASCII-8BIT'))"}]
 
   def initialize(*args)
     super(*args)
