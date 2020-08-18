@@ -11,17 +11,59 @@ SNMP Trap v2c Output for Logstash
 
 #Synopsis
 ```
-output {
-  snmptrap {
-    codec => ... # codec (optional), default: "line"
-    host => ... # string (optional), default: "0.0.0.0"
-    port => ... # number (optional), default: "162"
-    community => ... # string (optional), default: "public"
-    oid => ... # string (required)
-    yamlmibdir => ... # string (optional)
+input {
+  http {
+    port => 5000
   }
 }
+
+filter {
+  mutate { 
+    # Set defaults, % placeholders are evaluated as message fields.
+    replace => {
+      "AppDetectedTimeStamp" => "%{@timestamp}"
+      "AppMsgTimeStamp" => "%{@timestamp}"
+      "AppEventID" => "Grafana-%{dashboardId}-%{panelId}-%{ruleId}"
+      "AppLabel" => "applabel"
+      "AppEventDescription" => "%{title}\n%{ruleUrl}"
+      "AppFriendlyEventDescription"=> "%{message}"
+      "AppCustomerImpact" => "78"
+      "AppServiceImpact" => "My Service"
+      "AppEventRegion" => "My Region"
+    }
+  }
+}
+
+output {
+  snmptrap {
+    codec => "json"
+    host => "snmpserver"
+    port => "161"
+    community => "public"
+    oid => "1.3.6.1.4.1.48177.2.1.1.121"
+    varbinds => {
+      "1.3.6.1.4.1.48177.2.1.3.1" => "@AppEventID"
+      "1.3.6.1.4.1.48177.2.1.3.2" => "@AppDetectedTimeStamp"
+      "1.3.6.1.4.1.48177.2.1.3.3" => "@AppMsgTimeStamp"
+      "1.3.6.1.4.1.48177.2.1.3.4" => "@AppLabel"
+      "1.3.6.1.4.1.48177.2.1.3.5" => "@AppEventType"
+      "1.3.6.1.4.1.48177.2.1.3.6" => "@AppEventSeverity"
+      "1.3.6.1.4.1.48177.2.1.3.7" => "@AppEventDescription"
+      "1.3.6.1.4.1.48177.2.1.3.8" => "@AppFriendlyEventDescription"
+      "1.3.6.1.4.1.48177.2.1.3.9" => "@AppEventTag"
+      "1.3.6.1.4.1.48177.2.1.3.10" => "@AppCustomerImpact"
+      "1.3.6.1.4.1.48177.2.1.3.11" => "@AppServiceImpact"
+      "1.3.6.1.4.1.48177.2.1.3.12" => "@AppEventRegion"
+      "1.3.6.1.4.1.48177.2.1.3.13" => "!event.to_s"
+      "1.3.6.1.4.1.48177.2.1.3.14" => "@AppTriggerIVR"
+      "1.3.6.1.4.1.48177.2.1.3.15" => "@AppPlatformService"
+    }
+  }
+}
+
 ```
+
+Varbind values prefixed with `@` will retrieve the value from that field on the message, values prefixed with `!` will be evaluated as ruby in the a context of `event`, varbind `key`, varbind `value` and the `snmp` manager.
 
 ## Developing
 
@@ -57,11 +99,11 @@ bundle exec rspec
 
 - Edit Logstash `Gemfile` and add the local plugin path, for example:
 ```ruby
-gem "logstash-filter-awesome", :path => "/your/local/logstash-filter-awesome"
+gem "logstash-output-snmptrap-v2", :path => "/your/local/logstash-output-snmptrap-v2"
 ```
 - Install plugin
 ```sh
-bin/plugin install --no-verify
+logstash-plugin install logstash-output-snmptrap-v2
 ```
 - Run Logstash with your plugin
 ```sh
@@ -75,11 +117,11 @@ You can use the same **2.1** method to run your plugin in an installed Logstash 
 
 - Build your plugin gem
 ```sh
-gem build logstash-filter-awesome.gemspec
+gem build logstash-output-snmptrap.gemspec
 ```
 - Install the plugin from the Logstash home
 ```sh
-bin/plugin install /your/local/plugin/logstash-filter-awesome.gem
+bin/plugin install /your/local/plugin/logstash-output-snmptrap.gem
 ```
 - Start Logstash and proceed to test the plugin
 
