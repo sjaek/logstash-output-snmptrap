@@ -30,10 +30,10 @@ jobs:
         username: ${{ secrets.DOCKER_USERNAME }}
         password: ${{ secrets.DOCKER_PASSWORD }}
         repository: sjaek/logstash-output-snmptrap
-        tags: ${LOGSTASH_VERSION}-${{steps.get_version.outputs.VERSION}}
+        tags: ${{ env.LOGSTASH_VERSION}}-${{steps.get_version.outputs.VERSION}}
         push: ${{ startsWith(github.ref, 'refs/tags/') }}
-        labels: LOGSTASH_VERSION=${LOGSTASH_VERSION},PLUGIN_VERSION=${{steps.get_version.outputs.VERSION}}
-        build_args: LOGSTASH_VERSION=${LOGSTASH_VERSION},PLUGIN_VERSION=${{steps.get_version.outputs.VERSION}}
+        labels: LOGSTASH_VERSION=${{ env.LOGSTASH_VERSION }},PLUGIN_VERSION=${{steps.get_version.outputs.VERSION}}
+        build_args: LOGSTASH_VERSION=${{ env.LOGSTASH_VERSION }},PLUGIN_VERSION=${{steps.get_version.outputs.VERSION}}
       env:
         LOGSTASH_VERSION: 7.8.1
         
