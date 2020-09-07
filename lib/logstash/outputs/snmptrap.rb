@@ -40,7 +40,8 @@ class LogStash::Outputs::Snmptrap < LogStash::Outputs::Base
       SNMP::Manager.open(trapsender_opts) do |snmp|
         #set it up and send the whole event using the user specified codec
         varbinds = []
-        @varbinds.each do |key, value|
+        @varbinds.each do |key, expression|
+          value = expression.clone
           if value.start_with?("!") 
             value.delete_prefix!("!")
             value = eval(value)
