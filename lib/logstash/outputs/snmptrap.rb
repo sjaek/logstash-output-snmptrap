@@ -22,6 +22,8 @@ class LogStash::Outputs::Snmptrap < LogStash::Outputs::Base
 
   # varbind configuration
   config :varbinds, :default => {"@oid" => "!event.to_s"}
+  
+  config :log, :default => false, :validate => :boolean
 
   def initialize(*args)
     super(*args)
@@ -56,6 +58,8 @@ class LogStash::Outputs::Snmptrap < LogStash::Outputs::Base
 
         #we dont actually care about the sys_up_time...do we.
         snmp.trap_v2(0, @oid, varbinds)
+        
+        @logger.info("@oid: #{@oid.to_s} @varbinds: #{varbinds.to_s}", :event => event) if @log
         end
     end
   end
